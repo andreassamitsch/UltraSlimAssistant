@@ -10,7 +10,7 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 ## Phase 3 — documented local interfaces
 - [x] Review LocalThings source and available device diagnostics for documented capture or app APIs (no supported capture stream found).
-- [ ] Inventory supported playback/discovery protocols and development interfaces; source review complete, direct LAN inventory blocked by current read-only tooling.
+- [x] Initial local TCP checks via restricted MCP Diagnostics app: 1516 open, 26101 refused. Full protocol inventory and supported developer path remain open.
 - Gate: identify a supported, authorized audio-capture interface before building a microphone client.
 
 ## Phase 4 — application environment
