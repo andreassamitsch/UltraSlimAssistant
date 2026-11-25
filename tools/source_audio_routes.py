@@ -29,11 +29,17 @@ def main(work):
                     count+=1;total+=f.size
                     if count>10000 or total>1024**3:raise SystemExit("ALSA member limit")
                     n=f.name
+                    if re.search(r"mtkffp|mtkpreaec|mtkmic_convert|mtkfake_ref|/bin/mas_thread$|/bin/audioin$|/libasound\.so(?:\.2)?$", n, re.I):
+                        hdr=t.extractfile(f).read(20)
+                        if hdr[:4]==b"\x7fELF" and len(hdr)>=20:
+                            machine=int.from_bytes(hdr[18:20],"little" if hdr[5]==1 else "big")
+                            out(f"ELF {n} class={hdr[4]} machine={machine} bytes={f.size}")
+                        else:out(f"CANDIDATE {n} bytes={f.size}")
                     if f.size>1024**2 or not re.search(r"\.(?:c|h|conf|dts|dtsi|xml|mk|txt|md)$|/Makefile$",n,re.I):continue
                     d=t.extractfile(f).read()
                     if b"\x00" in d:continue
                     lines=d.decode("utf-8","replace").splitlines()
-                    if n.endswith(("/asound.conf","/aasound.conf")):
+                    if n.endswith(("/asound.conf","/aasound.conf","/aasound_mt8532.conf")):
                         out("=== FULL CONFIG "+n+" ===")
                         for i,line in enumerate(lines,1):out(f"{i}: {line}")
                         continue

@@ -1,6 +1,9 @@
 name: Samsung MT8532 capture route trace
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/source-audio-routes.yml'
 permissions:
   contents: read
 jobs:
@@ -13,7 +16,7 @@ jobs:
           persist-credentials: false
       - name: Trace released ALSA route definitions
         env:
-          PCLOUD_SOURCE_LINK: ${{ secrets.PCLOUD_SOURCE_LINK }}
+          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
         run: |
           set -euo pipefail
           work="$(mktemp -d "$RUNNER_TEMP/audio-routes.XXXXXX")"
