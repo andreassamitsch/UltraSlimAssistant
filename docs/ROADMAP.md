@@ -9,12 +9,12 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 - [x] Read-only OCF diagnostics: microphone flag, Alexa and vendor app-update support, Tizen-related package IDs.
 
 ## Phase 3 — documented local interfaces
-- [ ] Review LocalThings source and available device diagnostics for documented capture or app APIs.
-- [ ] Inventory supported playback/discovery protocols and development interfaces; distinguish observed from inferred.
+- [x] Review LocalThings source and available device diagnostics for documented capture or app APIs (no supported capture stream found).
+- [ ] Inventory supported playback/discovery protocols and development interfaces; source review complete, direct LAN inventory blocked by current read-only tooling.
 - Gate: identify a supported, authorized audio-capture interface before building a microphone client.
 
 ## Phase 4 — application environment
-- [ ] Review Samsung open-source portal, model documentation and official Tizen SDK capabilities.
+- [x] Review Samsung open-source portal, model documentation and official Tizen SDK capabilities (portal unavailable; generic native audio API documented).
 - [ ] Establish whether a soundbar-specific developer application mechanism exists.
 - [ ] Request corresponding open-source components and supported SDK information from Samsung (draft available; not sent).
 - Gate: confirm supported deployment, permissions, uninstall/recovery before any device installation.
@@ -29,6 +29,10 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 - [ ] Host-side test with synthetic audio and documented Assist protocol.
 - [ ] Device prototype only if the supported deployment and capture gates pass.
 - [ ] Verify playback, HDMI/eARC, updates and rollback.
+
+## Latest evidence
+- Device explicitly reports Tizen 8.0; see [platform and SDK findings](findings/2026-11-25-platform-sdk.md).
+- Native API candidates identified; supported soundbar deployment remains the primary gate.
 
 ## Decision paths
 A: supported native application (preferred for integration).
