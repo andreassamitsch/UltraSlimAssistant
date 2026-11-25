@@ -1,6 +1,11 @@
 name: Firmware inventory (read-only)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/firmware-inventory.yml'
+      - 'tools/inspect_msd.py'
 permissions:
   contents: read
 concurrency:
@@ -14,6 +19,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Test analysis with synthetic fixture
+        run: python3 tools/inspect_msd.py --self-test
       - name: Download official reference archive
         shell: bash
         env:
@@ -27,6 +34,11 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/inventory.py "$RUNNER_TEMP/firmware.zip"
+      - name: Inspect MediaTek update container
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/inspect_msd.py "$RUNNER_TEMP/firmware.zip" | tee "$RUNNER_TEMP/msd-report.json"
       - name: Remove temporary archive
         if: always()
-        run: rm -f "$RUNNER_TEMP/firmware.zip"
+        run: rm -f "$RUNNER_TEMP/firmware.zip" "$RUNNER_TEMP/msd-report.json"
