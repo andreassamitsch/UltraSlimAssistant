@@ -15,7 +15,7 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 ## Phase 4 — application environment
 - [x] Review Samsung open-source portal, model documentation and official Tizen SDK capabilities (portal unavailable; generic native audio API documented).
-- [ ] Establish whether a soundbar-specific developer application mechanism exists.
+- [ ] Establish whether a soundbar-specific developer application mechanism exists. Shared REST API developerMode=0 is not proof of support; TV-only instructions do not establish soundbar compatibility. See [developer mode review](findings/2026-11-25-developer-mode.md).
 - [x] Decision: no outreach to Samsung. Use publicly available material and existing authorized local interfaces only.
 - Gate: confirm supported deployment, permissions, uninstall/recovery before any device installation.
 
