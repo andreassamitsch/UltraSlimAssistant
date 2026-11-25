@@ -21,12 +21,13 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 ## Phase 5 — audio architecture
 - [ ] Establish capture format, microphone permission and mute/indicator behavior.
-- [ ] Determine whether documented processed audio and echo cancellation are available.
+- [x] Identify published MT8532 PCM and FFP processing configuration; runtime availability and permissions remain unverified.
 - [ ] Evaluate playback coexistence and explicit activation.
 - Gate: no audio recording until consent, mute behavior and indicators are verified.
 
 ## Phase 6 — prototype
 - [x] Host-side test with synthetic audio and documented Assist protocol (run 45683705531).
+- [x] Prepare metadata-only ALSA inventory probe for an authorized native environment; host test run 45716235152.
 - [ ] Device prototype only if the supported deployment and capture gates pass.
 - [ ] Verify playback, HDMI/eARC, updates and rollback.
 
@@ -39,6 +40,8 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 - Local OCF confirms smartThingsHub.isSupported=0. InfoLink exposes a disabled HyperUART setting; comparative HW-Q800A research links HyperUART to debugging, but no supported HW-S800D procedure verified. See [OCF comparison](findings/2026-11-25-ocf-comparison.md).
 
 - HyperUART review: older HW-Q800A demonstrates USB network debugging; no verified activation or recovery workflow for 2024 devices. Broaden public research to the shared SAT-MT8532D24WWC firmware family. See [HyperUART review](findings/2026-11-25-hyperuart.md).
+
+- Published Q800D source identifies Linux 5.4.249, ARM32 media binaries, ALSA digital mic capture and a 16 kHz FFP route. Q990D comparison uses different media package. Several aliases and FFP plugin runtime availability are unverified; no native deployment path found. See [source findings](findings/2026-11-25-mt8532-audio-sdk.md).
 
 ## Decision paths
 A: supported native application (preferred for integration).
