@@ -9,3 +9,4 @@
 - Verify stage-two analysis and fixture in run 2. Record cryptographic metadata hints, near-maximal entropy and no identified OS/audio headers; prioritize manufacturer-published sources.
 - Document sanitized live OCF findings: microphone support, vendor app update capability, Tizen-related app IDs and Alexa client version. Prepare manufacturer source/SDK inquiry; no device changes.
 - Add research roadmap and confirm device-reported Tizen 8.0. Review LocalThings source and official Tizen audio APIs; document deployment and capture gates.
+- Add isolated Assist STT transport prototype, five synthetic tests and lightweight CI without firmware downloads. Document TV SDK versus unverified soundbar deployment.
