@@ -18,3 +18,7 @@ jobs:
         with:
           persist-credentials: false
       - run: python3 -m unittest discover -s tests -v
+      - name: Native capability probe host test (stub only)
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -Itests/native_stub prototype/tizen/capability_probe.c tests/native_stub/test_probe.c -o "$RUNNER_TEMP/test-probe"
+          "$RUNNER_TEMP/test-probe"
