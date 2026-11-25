@@ -16,3 +16,6 @@ Read-only LocalThings snapshot:
 - av/support: soundApp.isSupported=true; Roon reports unavailable
 
 Google Cast is already supported and its terms accepted, yet no explicit Cast package is present in this particular app inventory. Alexa and Spotify likewise not named there. Inventory may be partial; no evidence the visible menu installs packages or accepts custom services. Ask owner to inspect Google Cast and Spotify screens without changing settings. Avoid disabling Cast because existing HA audio applications use soundbar playback. Compare package inventory and relevant capability values if an actual supported service installation becomes available. No activation, playback, update or configuration change performed.
+
+## UI follow-up
+Owner screenshot of Spotify Connect shows instructions and Spotify linking only. Owner reports tapping Google Cast launches Google Home. These observations favor a configuration/account-linking UI for supported services, not a general application installer. They do not prove the implementation is entirely preinstalled or exclude independent package updates. No service activation or disabling required for this comparison. Prioritize published source analysis for package management, service-manager, downloadableApp, audio APIs and supported deployment interfaces. No settings changed.
