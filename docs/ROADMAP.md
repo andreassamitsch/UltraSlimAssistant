@@ -38,6 +38,8 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 - Local OCF confirms smartThingsHub.isSupported=0. InfoLink exposes a disabled HyperUART setting; comparative HW-Q800A research links HyperUART to debugging, but no supported HW-S800D procedure verified. See [OCF comparison](findings/2026-11-25-ocf-comparison.md).
 
+- HyperUART review: older HW-Q800A demonstrates USB network debugging; no verified activation or recovery workflow for 2024 devices. Broaden public research to the shared SAT-MT8532D24WWC firmware family. See [HyperUART review](findings/2026-11-25-hyperuart.md).
+
 ## Decision paths
 A: supported native application (preferred for integration).
 B: documented network audio interface (simpler if available).
