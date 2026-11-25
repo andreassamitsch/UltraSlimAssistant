@@ -36,6 +36,8 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 - SmartThings cloud profile confirms OCF NetworkAudio and no registered hub. No supported Edge deployment or microphone capture capability found; see [profile review](findings/2026-11-25-smartthings-profile.md).
 
+- Local OCF confirms smartThingsHub.isSupported=0. InfoLink exposes a disabled HyperUART setting; comparative HW-Q800A research links HyperUART to debugging, but no supported HW-S800D procedure verified. See [OCF comparison](findings/2026-11-25-ocf-comparison.md).
+
 ## Decision paths
 A: supported native application (preferred for integration).
 B: documented network audio interface (simpler if available).
