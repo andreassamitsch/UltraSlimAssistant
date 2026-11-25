@@ -1,0 +1,25 @@
+name: Samsung transport and shared source review
+on:
+  push:
+    paths:
+      - '.github/workflows/source-transport-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Review transport and compare source component hashes
+        env:
+          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+          PCLOUD_Q990D_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZAEGV7ZnwExJTqFzlzIU9ylJIHvaFwhCboX'
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d "$RUNNER_TEMP/transport.XXXXXX")"
+          trap 'rm -rf "$work"' EXIT
+          python3 tools/source_transport_review.py "$work"
