@@ -20,6 +20,8 @@ GIB = 1024 ** 3
 MAX_DOWNLOAD = 2 * GIB
 MAX_NESTED = 4 * GIB
 MAX_DECLARED = 24 * GIB
+SKIP_ROOT = re.compile(r"^(?:gcc|coreutils|bash|findutils|fribidi|elfutils|cryptsetup|e2fsprogs|dibbler|DirectFB|exfat)(?:[.\-_]|$)", re.I)
+SKIP_TEST_PATH = re.compile(r"(?:^|/)(?:tests?|testsuite|testdata|fuzz|benchmarks?)(?:/|$)", re.I)
 MAX_TEXT = 2 * 1024 ** 2
 MAX_ENTRIES = 600_000
 MAX_DEPTH = 6
@@ -113,6 +115,12 @@ class Scan:
             self.matched_files[category] += 1
     def member(self, path, name, size, opener, depth):
         self.counts["entries"] += 1
+        if depth == 0 and SKIP_ROOT.match(name.rsplit("/", 1)[-1]):
+            self.counts["generic_root_skipped"] += 1
+            return
+        if depth > 0 and SKIP_TEST_PATH.search(name):
+            self.counts["test_entries_skipped"] += 1
+            return
         self.counts["declared_bytes"] += size
         if self.counts["entries"] > MAX_ENTRIES or self.counts["declared_bytes"] > MAX_DECLARED:
             raise Limit("global entry/declared-size budget reached")
@@ -144,6 +152,11 @@ class Scan:
         try:
             if zipfile.is_zipfile(file):
                 with zipfile.ZipFile(file) as z:
+                    if depth == 0:
+                        print("=== Complete outer ZIP directory ===", flush=True)
+                        for entry in z.infolist()[:300]:
+                            if not entry.is_dir():
+                                print("OUTER", safe_text(entry.filename, 500), entry.file_size, flush=True)
                     for m in z.infolist():
                         if m.is_dir():
                             continue
@@ -296,5 +309,6 @@ def main():
     s.report()
     if s.counts["issues"]:
         print("WARNING: incomplete archive coverage")
+    print("Selected scan intentionally omits generic compiler/tool and test trees.")
 if __name__ == "__main__":
     main()
