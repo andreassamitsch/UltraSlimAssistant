@@ -1,0 +1,24 @@
+name: Samsung MediaTek and AV source review
+on:
+  push:
+    paths:
+      - '.github/workflows/source-focus.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Review selected media and SDK source
+        env:
+          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d "$RUNNER_TEMP/samsung-focus.XXXXXX")"
+          trap 'rm -rf "$work"' EXIT
+          python3 tools/source_focus.py "$work"
