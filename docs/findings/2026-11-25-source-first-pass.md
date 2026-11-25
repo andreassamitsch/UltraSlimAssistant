@@ -1,0 +1,7 @@
+# HW-Q800D source archive: first pass
+
+GitHub Actions run 45714515464, analyze job 139557122266 completed successfully at 22:37 UTC, but reported incomplete coverage. pCloud metadata verified HW-Q800D.zip, 849566852 bytes; SHA256 bd55f6bf95713a93df1feab53a7f4c9cd93dcc3b5d2526cb35dbdc4d8c91b650. This digest identifies the downloaded artifact, not proof of authenticity against a Samsung-published digest.
+
+97,222 entries and 67,820 text files (255,826,482 bytes) examined. A GCC test archive caused the declared-size budget to trip at 63,736,036,872 bytes; the scanner stopped before reaching the remaining outer ZIP members. DirectFB RAR unsupported. Initial zero HyperUART/MT8532/audio capture hits are inconclusive. The visible avsdk-lib-releaser package includes Tizen 6.0 ARM and AArch64 SmartThings AV/thing-master/thing-resource archives and a spec requiring pkgmgr-extension-devel; this does not establish a supported S800D installation route or actual OS ABI.
+
+Follow-up run 45714814625 (commit e24443d159d3e379d1e24cf6e284a6e2d4b6fb3d) enumerates the complete outer directory first and skips selected generic compiler/tool and test trees, keeping limits. Inspect its actual logs, distinguish device-specific from upstream code, and target relevant source paths for further read-only review. Compare second Q990D archive if useful. No firmware or device changes. Temporary share removed from active workflow after each launch; owner authorized public link use and plans to revoke after analysis. Link remains in historical commits/logs; no link repeated here.
