@@ -1,0 +1,32 @@
+name: Firmware inventory (read-only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: firmware-inventory
+  cancel-in-progress: false
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Download official reference archive
+        shell: bash
+        env:
+          FIRMWARE_URL: 'https://org.downloadcenter.samsung.com/downloadfile/ContentsFile.aspx?CDSite=UNI_AT&OriginYN=N&ModelType=N&ModelName=HW-S800D&CttFileID=9528983&CDCttType=FM&VPath=FM%2F202609%2F20260903095352782%2FFirmware_USB.zip'
+        run: |
+          set -euo pipefail
+          df -h "$RUNNER_TEMP"
+          curl --fail --location --proto '=https' --proto-redir '=https' --retry 2 --connect-timeout 30 --max-time 900 --max-filesize 2500000000 --output "$RUNNER_TEMP/firmware.zip" "$FIRMWARE_URL"
+      - name: Inventory without extracting
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/inventory.py "$RUNNER_TEMP/firmware.zip"
+      - name: Remove temporary archive
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firmware.zip"
