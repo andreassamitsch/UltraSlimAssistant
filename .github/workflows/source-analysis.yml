@@ -17,6 +17,7 @@ jobs:
           persist-credentials: false
       - run: python3 tools/source_analysis.py --self-test
   analyze:
+    if: github.event_name == 'workflow_dispatch'
     needs: self-test
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -26,7 +27,7 @@ jobs:
           persist-credentials: false
       - name: Download and inspect public Samsung source (temporary only)
         env:
-          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+          PCLOUD_SOURCE_LINK: ${{ secrets.PCLOUD_SOURCE_LINK }}
         run: |
           set -euo pipefail
           work="$(mktemp -d "$RUNNER_TEMP/samsung-source.XXXXXX")"
