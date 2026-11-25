@@ -1,8 +1,5 @@
 name: Samsung kernel and audio platform review
 on:
-  push:
-    paths:
-      - '.github/workflows/source-platform.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,7 +13,7 @@ jobs:
           persist-credentials: false
       - name: Review selected kernel and media source
         env:
-          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+          PCLOUD_SOURCE_LINK: ${{ secrets.PCLOUD_SOURCE_LINK }}
         run: |
           set -euo pipefail
           work="$(mktemp -d "$RUNNER_TEMP/platform.XXXXXX")"
