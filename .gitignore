@@ -1,0 +1,23 @@
+# Vendor firmware and local work areas
+firmware/
+work/
+scratch/
+output/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.bin
+*.img
+*.rom
+*.swu
+*.enc
+*.squashfs
+*.vdfs
+*.elf
+*.so
+*.pem
+.env
+.env.*
+__pycache__/
