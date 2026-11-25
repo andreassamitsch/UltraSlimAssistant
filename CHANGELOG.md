@@ -6,3 +6,4 @@
 - Add standard-library ZIP inventory utility.
 - Verify official firmware download and inventory in Actions run 1; record checksums and both platform images.
 - Add bounded MediaTek MSD inspection, synthetic fixture test and read-only workflow.
+- Verify stage-two analysis and fixture in run 2. Record cryptographic metadata hints, near-maximal entropy and no identified OS/audio headers; prioritize manufacturer-published sources.
