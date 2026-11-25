@@ -16,7 +16,7 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 ## Phase 4 — application environment
 - [x] Review Samsung open-source portal, model documentation and official Tizen SDK capabilities (portal unavailable; generic native audio API documented).
 - [ ] Establish whether a soundbar-specific developer application mechanism exists.
-- [ ] Request corresponding open-source components and supported SDK information from Samsung (draft available; not sent).
+- [x] Decision: no outreach to Samsung. Use publicly available material and existing authorized local interfaces only.
 - Gate: confirm supported deployment, permissions, uninstall/recovery before any device installation.
 
 ## Phase 5 — audio architecture
@@ -26,7 +26,7 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 - Gate: no audio recording until consent, mute behavior and indicators are verified.
 
 ## Phase 6 — prototype
-- [ ] Host-side test with synthetic audio and documented Assist protocol.
+- [x] Host-side test with synthetic audio and documented Assist protocol (run 45683705531).
 - [ ] Device prototype only if the supported deployment and capture gates pass.
 - [ ] Verify playback, HDMI/eARC, updates and rollback.
 
