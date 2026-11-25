@@ -1,0 +1,59 @@
+name: Samsung AV SDK focused review
+on:
+  push:
+    paths:
+      - '.github/workflows/source-avsdk-review.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Review outer manifest and AV SDK
+        env:
+          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d "$RUNNER_TEMP/avsdk.XXXXXX")"
+          trap 'rm -rf "$work"' EXIT
+          python3 - "$work" <<'PY'
+          from tools.source_analysis import pcloud_download, safe_text
+          from pathlib import Path
+          import sys, zipfile, io, re, collections
+          try:
+              archive, name = pcloud_download(sys.argv[1])
+          except Exception as e:
+              print("Download error:", type(e).__name__)
+              raise SystemExit(2)
+          def line(s): print(safe_text(s, 600), flush=True)
+          with zipfile.ZipFile(archive) as z:
+              line("=== Outer manifest ===")
+              for m in z.infolist()[:300]:
+                  if not m.is_dir(): line(f"{m.filename} {m.file_size}")
+              target = [m for m in z.infolist() if m.filename.endswith("/avsdk-lib-releaser.zip")]
+              if not target: raise SystemExit("AV SDK archive missing")
+              m = target[0]
+              if m.file_size > 100*1024**2: raise SystemExit("SDK size limit")
+              with zipfile.ZipFile(io.BytesIO(z.read(m))) as a:
+                  line("=== SDK paths ===")
+                  files = [x for x in a.infolist() if not x.is_dir()]
+                  line(f"SDK file count: {len(files)}")
+                  line(str(collections.Counter(Path(x.filename).suffix for x in files).most_common(25)))
+                  for x in files[:160]: line(f"{x.filename} {x.file_size}")
+                  for x in files:
+                      if x.file_size <= 100000 and re.search(r'(?:\.spec$|/README[^/]*$|/CMakeLists\.txt$|/manifest\.xml$)', x.filename, re.I):
+                          line("=== "+x.filename+" ===")
+                          for i,l in enumerate(a.read(x).decode("utf-8","replace").splitlines()[:100],1):
+                              line(f"{i}: {l}")
+                  for x in files:
+                      if x.filename.endswith(".zip") and x.file_size <= 40*1024**2:
+                          with zipfile.ZipFile(io.BytesIO(a.read(x))) as b:
+                              line("=== Component "+x.filename+" ===")
+                              members = [y for y in b.infolist() if not y.is_dir()]
+                              line(f"Count: {len(members)}")
+                              for y in members[:80]: line(f"{y.filename} {y.file_size}")
+          PY
