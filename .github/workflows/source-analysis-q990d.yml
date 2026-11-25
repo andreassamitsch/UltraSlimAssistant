@@ -1,0 +1,33 @@
+name: Samsung Q990D comparative source analysis
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/source-analysis-q990d.yml'
+permissions:
+  contents: read
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 tools/source_analysis.py --self-test
+  analyze:
+    needs: self-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download and inspect public Samsung source (temporary only)
+        env:
+          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZAEGV7ZnwExJTqFzlzIU9ylJIHvaFwhCboX'
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d "$RUNNER_TEMP/samsung-source.XXXXXX")"
+          trap 'rm -rf "$work"' EXIT
+          python3 tools/source_analysis.py --work "$work"
