@@ -1,0 +1,29 @@
+name: Samsung source portal check
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/source-portal.yml'
+permissions: {}
+jobs:
+  portal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Fetch public listing and report matching rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          page="$RUNNER_TEMP/samsung-source.html"
+          trap 'rm -f "$page"' EXIT
+          curl --fail --silent --show-error --location --max-redirs 3 --proto '=https' --proto-redir '=https' --connect-timeout 10 --max-time 40 --max-filesize 2097152 -o "$page" -w 'HTTP %{http_code}, bytes %{size_download}\n' 'https://opensource.samsung.com/uploadList?menuItem=tv_n_video&classification1=av'
+          python3 - "$page" <<'PY'
+          from pathlib import Path
+          import re, sys
+          s = Path(sys.argv[1]).read_text(errors="replace")
+          print("Title:", re.search(r"<title[^>]*>(.*?)</title>",s,re.I|re.S).group(1)[:200] if re.search(r"<title[^>]*>(.*?)</title>",s,re.I|re.S) else "unknown")
+          for m in list(re.finditer(r"HW-Q(?:800|990)D",s,re.I))[:8]:
+              snippet = s[max(0,m.start()-350):m.end()+350]
+              print(re.sub(r"[\r\n\t]+"," ",snippet))
+          print("Matching model strings:", len(re.findall(r"HW-Q(?:800|990)D",s,re.I)))
+          PY
