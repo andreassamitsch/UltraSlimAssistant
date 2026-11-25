@@ -10,7 +10,7 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 
 ## Phase 3 — documented local interfaces
 - [x] Review LocalThings source and available device diagnostics for documented capture or app APIs (no supported capture stream found).
-- [x] Initial local TCP checks via restricted MCP Diagnostics app: 1516 open, 26101 refused. Full protocol inventory and supported developer path remain open.
+- [x] Bounded 22-port inventory and read-only HTTP/SSDP/mDNS classification completed. Samsung API reports developerMode=0; SDB port refused. Supported developer path remains open. See [service inventory](findings/2026-11-25-service-inventory.md).
 - Gate: identify a supported, authorized audio-capture interface before building a microphone client.
 
 ## Phase 4 — application environment
