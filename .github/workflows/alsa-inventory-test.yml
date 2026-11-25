@@ -1,0 +1,41 @@
+name: ALSA metadata probe test
+on:
+  push:
+    paths:
+      - 'prototype/tizen/alsa_inventory.c'
+      - '.github/workflows/alsa-inventory-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libasound2-dev
+          cc -Wall -Wextra -Werror -O2 prototype/tizen/alsa_inventory.c -lasound -o "$RUNNER_TEMP/alsa_inventory"
+          if "$RUNNER_TEMP/alsa_inventory"; then exit 1; else test "$?" -eq 2; fi
+          cat > "$RUNNER_TEMP/alsa-synthetic.conf" <<'EOF'
+          pcm.ffp_in {
+            type null
+            hint {
+              show on
+              description "Synthetic metadata test, not a microphone"
+            }
+          }
+          pcm.Capture_Mic_normal {
+            type null
+            hint {
+              show on
+              description "Synthetic metadata test, not a microphone"
+            }
+          }
+          EOF
+          ALSA_CONFIG_PATH="$RUNNER_TEMP/alsa-synthetic.conf" "$RUNNER_TEMP/alsa_inventory" --list | tee "$RUNNER_TEMP/alsa-inventory.txt"
+          grep -F 'PCM ffp_in ' "$RUNNER_TEMP/alsa-inventory.txt"
+          grep -F 'PCM Capture_Mic_normal ' "$RUNNER_TEMP/alsa-inventory.txt"
