@@ -1,8 +1,5 @@
 name: Samsung transport and shared source review
 on:
-  push:
-    paths:
-      - '.github/workflows/source-transport-review.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,8 +13,8 @@ jobs:
           persist-credentials: false
       - name: Review transport and compare source component hashes
         env:
-          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
-          PCLOUD_Q990D_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZAEGV7ZnwExJTqFzlzIU9ylJIHvaFwhCboX'
+          PCLOUD_SOURCE_LINK: ${{ secrets.PCLOUD_SOURCE_LINK }}
+          PCLOUD_Q990D_SOURCE_LINK: ${{ secrets.PCLOUD_Q990D_SOURCE_LINK }}
         run: |
           set -euo pipefail
           work="$(mktemp -d "$RUNNER_TEMP/transport.XXXXXX")"
