@@ -11,3 +11,4 @@
 - Add research roadmap and confirm device-reported Tizen 8.0. Review LocalThings source and official Tizen audio APIs; document deployment and capture gates.
 - Add isolated Assist STT transport prototype, five synthetic tests and lightweight CI without firmware downloads. Document TV SDK versus unverified soundbar deployment.
 - Cancel manufacturer outreach; add opt-in TLS STT connection test and authentication tests. Read-only inspection confirms two STT-capable HA pipelines; live audio test remains outstanding.
+- Add read-only native Tizen capability-query component and host stub tests; document unresolved supported deployment and LAN inventory.
