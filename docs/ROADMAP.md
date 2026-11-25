@@ -38,7 +38,9 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 A: supported native application (preferred for integration).
 B: documented network audio interface (simpler if available).
 C: vendor-supported firmware extension only if documented and recoverable.
-D: external voice satellite / Alexa skill fallback if no supported microphone access.
+D: external microphone satellite with soundbar audio output, only as a fallback; does not satisfy native microphone goal.
+
+Excluded by project owner: Alexa Skills and any Alexa-mediated assistant routing. No manufacturer outreach.
 
 ## Boundaries
 No flashing, modifications to production settings, authentication bypass, private audio collection, or proprietary firmware redistribution. Public research reports contain only sanitized facts. Automated CI limited to tests and explicit firmware-tool changes; no persistent firmware artifacts.
