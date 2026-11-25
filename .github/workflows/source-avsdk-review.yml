@@ -1,8 +1,6 @@
 name: Samsung AV SDK focused review
 on:
-  push:
-    paths:
-      - '.github/workflows/source-avsdk-review.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -15,7 +13,7 @@ jobs:
           persist-credentials: false
       - name: Review outer manifest and AV SDK
         env:
-          PCLOUD_SOURCE_LINK: 'https://e.pcloud.link/publink/show?code=XZEEGV7ZURQ2dQmRaIQLpQpsrEj49mcSL7tV'
+          PCLOUD_SOURCE_LINK: ${{ secrets.PCLOUD_SOURCE_LINK }}
         run: |
           set -euo pipefail
           work="$(mktemp -d "$RUNNER_TEMP/avsdk.XXXXXX")"
