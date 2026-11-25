@@ -34,6 +34,8 @@ Goal: Home Assistant Assist using the original HW-S800D microphone and playback 
 - Device explicitly reports Tizen 8.0; see [platform and SDK findings](findings/2026-11-25-platform-sdk.md).
 - Native API candidates identified; supported soundbar deployment remains the primary gate.
 
+- SmartThings cloud profile confirms OCF NetworkAudio and no registered hub. No supported Edge deployment or microphone capture capability found; see [profile review](findings/2026-11-25-smartthings-profile.md).
+
 ## Decision paths
 A: supported native application (preferred for integration).
 B: documented network audio interface (simpler if available).
