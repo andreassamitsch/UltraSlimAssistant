@@ -92,3 +92,5 @@ Official references:
 - https://developer.samsung.com/smarttv/develop/getting-started/quick-start-guide.html (TV SDK, not evidence of soundbar support)
 
 Work cycle 7: [headless Tizen SDK validation](findings/2026-11-26-headless-tizen-sdk.md) establishes official generic Tizen 8.0 service API compatibility: independent lifecycle smoke service and capability/inventory probe both passed actual SDK header syntax checks (run 45743111190). Next real build/link and supported emulator lifecycle test; ARM/AArch64 and S800D deployment remain unverified. No device install, recording or settings changes.
+
+Work cycle 9: [HyperUART installation chain](findings/2026-11-26-hyperuart-installation-gate.md). Owner requests software feasibility before any adapter purchase. Targeted archive review succeeded (45744157243); USB Ethernet modules and HyperUART macro definitions present in reference, userspace SDB activation and own native TPK acceptance not established. Hold hardware purchases and further speculative assistant implementation until a credible authorized install path is identified.
