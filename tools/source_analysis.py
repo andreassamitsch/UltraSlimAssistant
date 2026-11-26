@@ -8,7 +8,8 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
+import subprocess
+import sys
 import stat
 import tarfile
 import tempfile
@@ -22,6 +23,9 @@ MAX_NESTED = 4 * GIB
 MAX_DECLARED = 24 * GIB
 SKIP_ROOT = re.compile(r"^(?:gcc|coreutils|bash|findutils|fribidi|elfutils|cryptsetup|e2fsprogs|dibbler|DirectFB|exfat)(?:[.\-_]|$)", re.I)
 SKIP_TEST_PATH = re.compile(r"(?:^|/)(?:tests?|testsuite|testdata|fuzz|benchmarks?)(?:/|$)", re.I)
+VOICE_ROOT = re.compile(r"(?:avsdk|tzav|tztv|mm_dtv|pulseaudio|alsa|audio|voice|alexa|speech|wake[-_]?word|micom|sound|system_drv|smartthings|service.manager|pkgmgr)", re.I)
+VOICE_MEMBER = re.compile(r"(?:alexa|avsdevice|wake[-_]?word|ffp|preaec|voice[-_]?assistant|speech|audio[-_]?focus|mic[-_]?mute|asound|audio[-_]?policy|tizen-manifest|service[-_]?manager)", re.I)
+PRIVATE_NAME = re.compile(r"(?:\.(?:p12|pfx|pem|key|crt)$|password|credential|private[-_]?key|signer)", re.I)
 MAX_TEXT = 2 * 1024 ** 2
 MAX_ENTRIES = 600_000
 MAX_DEPTH = 6
@@ -79,8 +83,11 @@ class Limit(Exception):
     pass
 
 class Scan:
-    def __init__(self, work):
+    def __init__(self, work, scope="all"):
         self.work = Path(work)
+        self.scope = scope
+        self.skipped_roots = []
+        self.voice_paths = []
         self.counts = collections.Counter()
         self.suffixes = collections.Counter()
         self.matches = collections.Counter()
@@ -124,6 +131,16 @@ class Scan:
             self.matched_files[category] += 1
     def member(self, path, name, size, opener, depth):
         self.counts["entries"] += 1
+        if self.counts["entries"] > MAX_ENTRIES:
+            raise Limit("global entry budget reached")
+        if PRIVATE_NAME.search(name):
+            self.counts["sensitive_name_skipped"] += 1
+            return
+        if depth == 0 and self.scope == "voice" and is_archive(name) and not VOICE_ROOT.search(name.rsplit("/", 1)[-1]):
+            self.counts["out_of_scope_root_skipped"] += 1
+            if len(self.skipped_roots) < 300:
+                self.skipped_roots.append(safe_text(name, 400))
+            return
         if depth == 0 and SKIP_ROOT.match(name.rsplit("/", 1)[-1]):
             self.counts["generic_root_skipped"] += 1
             return
@@ -137,6 +154,10 @@ class Scan:
         if depth == 0 and len(self.root_entries) < 80:
             self.root_entries.append((safe_text(name, 400), size))
         self.suffixes[Path(name).suffix.lower() or "(none)"] += 1
+        if VOICE_MEMBER.search(name.rsplit("/", 1)[-1]):
+            self.counts["voice_named_members"] += 1
+            if len(self.voice_paths) < 160:
+                self.voice_paths.append((safe_text(path, 600), size))
         if is_archive(name):
             if depth >= MAX_DEPTH or size > MAX_NESTED:
                 self.issue(path, "nested archive depth/size limit")
@@ -162,7 +183,10 @@ class Scan:
             if zipfile.is_zipfile(file):
                 with zipfile.ZipFile(file) as z:
                     if depth == 0:
-                        print("=== Complete outer ZIP directory ===", flush=True)
+                        print("=== Outer ZIP directory (first 300 entries) ===", flush=True)
+                        self.counts["outer_members"] = len(z.infolist())
+                        if len(z.infolist()) > 300:
+                            self.counts["outer_listing_truncated"] = 1
                         for entry in z.infolist()[:300]:
                             if not entry.is_dir():
                                 print("OUTER", safe_text(entry.filename, 500), entry.file_size, flush=True)
@@ -194,7 +218,15 @@ class Scan:
             print("  ARCHIVE", a)
         for n, s in self.root_entries:
             print("  MEMBER", n, s)
+        print("Scope:", self.scope)
         print("Counts:", dict(self.counts))
+        for path in self.skipped_roots:
+            print("  OUT_OF_SCOPE", path)
+        print("=== Voice-related names (metadata only, not runtime evidence) ===")
+        for path, size in self.voice_paths:
+            print("  VOICE_PATH", path, size)
+        if self.counts["voice_named_members"] > len(self.voice_paths):
+            print("  VOICE_PATH listing truncated")
         print("Top suffixes:", self.suffixes.most_common(25))
         print("=== Source evidence (selected matches, not a complete source listing) ===")
         for category in PATTERNS:
@@ -203,7 +235,7 @@ class Scan:
                 print(f"  {p}:{line}: {excerpt}")
         for p, why in self.issues:
             print("  LIMIT/ERROR", p, why)
-        print("Coverage is incomplete if issues, skipped large text, unsupported archive formats or global limits are reported.")
+        print("Coverage is selective; omitted roots, sensitive names, test trees, unsupported archives and size limits are not negative evidence.")
 
 def pcloud_download(work):
     raw = os.environ.get("PCLOUD_SOURCE_LINK", "").strip()
@@ -278,6 +310,9 @@ def self_test():
         archive = Path(work) / "test.zip"
         with zipfile.ZipFile(archive, "w") as z:
             z.writestr("source.tar.gz", nested.getvalue())
+            z.writestr("audio-source.tar.gz", nested.getvalue())
+            z.writestr("voice/libmtkffp.so", b"\x7fELF synthetic")
+            z.writestr("voice/private-key.txt", "wakeword must not be examined")
             z.writestr("../outside.c", "audio_in_create();\n")
             z.writestr("mdp_alsa/swdsp/aasound.conf",
                        "pcm.ffp_in { type mtkffp }\nmic_mute=1\n")
@@ -285,20 +320,40 @@ def self_test():
                        "AudioInputProcessor; FocusManager;\n")
         s = Scan(work)
         s.archive(archive, "test.zip")
-        assert s.matched_files["hyperuart"] == 1
-        assert s.matched_files["audio_capture"] == 2
+        assert s.matched_files["hyperuart"] == 2
+        assert s.matched_files["audio_capture"] == 3
         for category in ("voice_service", "audio_frontend", "audio_focus", "mic_privacy"):
             assert s.matched_files[category] == 1, category
-        assert len(s.archives) == 2
+        assert len(s.archives) == 3
+        assert s.counts["voice_named_members"] >= 1
+        assert s.counts["sensitive_name_skipped"] == 1
         assert not (Path(work).parent / "outside.c").exists()
         assert not s.issues
         print("PASS: nested ZIP/TAR.GZ, source matching, path traversal names not extracted")
         s.report()
+        result = subprocess.run([sys.executable, __file__, "--work", work,
+                                 "--archive", str(archive), "--scope", "voice"],
+                                capture_output=True, text=True, timeout=30, check=True)
+        assert "Scope: voice" in result.stdout
+        assert "OUT_OF_SCOPE source.tar.gz" in result.stdout
+        assert "audio-source.tar.gz!/sound/audio.c" in result.stdout
+        assert "VOICE_PATH test.zip!/voice/libmtkffp.so" in result.stdout
+        assert "wakeword must not be examined" not in result.stdout
+        assert "SHA256 " + hashlib.sha256(archive.read_bytes()).hexdigest() in result.stdout
+        bad = Path(work) / "bad.zip"
+        bad.write_text("not a ZIP")
+        rejected = subprocess.run([sys.executable, __file__, "--work", work,
+                                   "--archive", str(bad)],
+                                  capture_output=True, text=True, timeout=30)
+        assert rejected.returncode == 2
+        print("PASS: focused local ZIP CLI, digest, scope and filename evidence, invalid ZIP rejected")
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--self-test", action="store_true")
     p.add_argument("--work")
+    p.add_argument("--scope", choices=("voice", "all"), default="voice",
+                   help="Voice: selected audio/service roots; all: broad bounded scan")
     p.add_argument("--archive", type=Path,
                    help="Analyze a locally supplied public source ZIP instead of pCloud")
     args = p.parse_args()
@@ -329,7 +384,7 @@ def main():
     except Exception as e:
         print("Download failed:", type(e).__name__, getattr(e, "code", ""))
         raise SystemExit(2)
-    s = Scan(args.work)
+    s = Scan(args.work, args.scope)
     try:
         s.archive(archive, name)
     except Limit as e:
