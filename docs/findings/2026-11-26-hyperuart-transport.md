@@ -1,0 +1,18 @@
+# Work cycle 8 — HyperUART transport evidence (2026-11-26)
+
+## Fresh target observation
+The owner-authorized LocalThings diagnostics for the currently loaded S800D integration were read through Home Assistant. The HyperUART field reports currentsetting=OFF and a supported list comprising OFF, five HyperUart modes and five AT-HUB modes. This confirms the field still exists on the target; it does not establish that the modes are user-supported, what they do, or how they can be safely restored. No command was sent and no setting changed. Do not retain raw diagnostics or network/account identifiers.
+
+## Direct reference source
+Shared Linux component bfd4fc9b531ba5b53d5e263c5a66dfaf789110a616f5762577257562cb26631c:
+- drivers/net/usb/usbnet.c, blob eec8be9e687a43721d20c6958551e3981737fbba, lines 1978–2044 and 2608–2646: Samsung-conditional USB network classification and behavior distinguish HyperUART-capable ASIX network adapters from normal networking; optional debug-related buffer allocation depends on firmware configuration. This is host-side USB Ethernet code, not a serial console or an app installer.
+- drivers/net/usb/ax88179_178a.c, blob 1adf9abb1a3e5107bafe9363d6162acf38138120, lines 181, 1254, 1536, 1592: explicit conditional SAMSUNG_HYPERUART_SDB_PUSH_FIX references. This is stronger source evidence of an intended relationship between HyperUART transport and SDB than a generic USB networking driver alone. Actual compilation of these conditionals, USB adapter compatibility, user-space SDB daemon availability and authorization on S800D remain unverified.
+- The current filtered snapshot has no files under the kernel arch configuration directories in its tree, because the original text-file allowlist omitted nonstandard defconfig names. Do not claim the conditional defines are enabled from their presence in C code. The earlier archive scan established ordinary USB networking configuration only.
+
+## Public evidence and test gate
+Samsung's official S800D support page https://www.samsung.com/at/support/model/HW-S800D/EN/ provides firmware update instructions for the SERVICE USB port, not a documented HyperUART development procedure. Samsung's public TV development guide https://developer.samsung.com/smarttv/develop/getting-started/using-sdk/tv-device.html is for supported TVs. The older Q800A comparative work describes a USB Ethernet debug transport but explicitly does not establish a newer soundbar activation path. No new supported S800D mode documentation found.
+
+First physical check, if owner has suitable USB Ethernet hardware already: with HyperUART unchanged/OFF, use a manufacturer-compatible USB host adapter and isolated Ethernet link, observe link indicator and ordinary network discovery only. No firmware files, no factory setting writes, no arbitrary debug commands, no authentication bypass, no direct host-to-host USB cable. Stop if normal device behavior changes. A negative link/discovery result with OFF is inconclusive; positive physical link is not evidence of an authorized debugger. Do not purchase hardware solely on an unverified hypothesis. Before changing any mode, establish its documented meaning, supported access and reversible procedure; otherwise keep it OFF.
+
+## Outcome
+Prioritize HyperUART transport over further speculative native application builds, while keeping M1 open. No native installation, recording, playback, device settings modification or new archive download in this cycle. Next: determine whether owner already has suitable adapter hardware, and recover build configuration evidence in the existing source archive if it materially clarifies this question.
