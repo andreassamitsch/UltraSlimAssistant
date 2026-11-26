@@ -42,12 +42,16 @@ with tempfile.TemporaryDirectory() as work:
     inc=roots[0]
     sysroot=inc.parent.parent
     print("INCLUDE_ROOT",inc.relative_to(base),"SYSROOT",sysroot.relative_to(base),flush=True)
-    # Official headers may reside in API-specific subdirectories; use all
-    # directories containing headers, with root include ahead of them.
-    dirs=sorted({p.parent for p in inc.rglob("*.h")})
-    args=["clang","-std=gnu11","-fsyntax-only","-Werror=implicit-function-declaration","--sysroot="+str(sysroot),"-isystem",str(inc)]
-    for p in dirs:
-        if p!=inc: args.extend(["-isystem",str(p)])
+    # Restrict include paths to the actual API groups. Adding every header
+    # directory can shadow compiler builtins and libc headers.
+    args=["clang","--target=x86_64-linux-gnu","-std=gnu11","-fsyntax-only",
+          "-Werror=implicit-function-declaration","--sysroot="+str(sysroot)]
+    for name in ("appcore-agent","appfw","media","system","dlog","base",
+                 "glib-2.0","bundle","privacy-privilege-manager"):
+        p=inc/name
+        if p.is_dir(): args.extend(["-I",str(p)])
+    for p in sysroot.glob("usr/lib*/glib-2.0/include"):
+        args.extend(["-I",str(p)])
     for name in ("service_smoke.c","capability_probe.c"):
         print("CHECK",name,flush=True)
         subprocess.run(args+[str(project/"prototype/tizen"/name)],check=True)
