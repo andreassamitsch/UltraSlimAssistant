@@ -1,4 +1,6 @@
-# UltraSlimAssistant roadmap
+# UltraSlimAssistant roadmap — historical overview
+
+The current canonical working plan, priorities and milestone status are maintained in [research.md](research.md). This earlier overview is retained for its decision paths and evidence links; where status differs, use the canonical plan.
 
 Goal: Home Assistant Assist using the original HW-S800D microphone and playback hardware, while preserving all vendor functionality. Public research repository; no proprietary binaries, private diagnostics or credentials.
 
