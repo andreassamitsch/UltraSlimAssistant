@@ -38,6 +38,9 @@ Soundbar microphones -> supported capture interface / existing speech processing
 
 Decision gate: a documented, authorized installation/execution path with rollback and known target prerequisites. If no such path can be established, mark M1 blocked and reassess feasibility rather than treating generic platform features as access.
 
+
+Work cycle 6: [Service Manager comparison](findings/2026-11-26-service-manager-comparison.md) verifies matching vendor package versions on Q700C/Q935GF and S800D, and the difference between Roon package presence and certified functionality. No owner-installable service API established. Next prioritize supported headless Tizen development profiles and independent service lifecycle testing in a supported SDK/emulator; do not infer target installability.
+
 ### P1 — Targeted audio, voice-service and firmware analysis
 
 Work cycle 5: [audio service boundaries](findings/2026-11-26-audio-service-boundaries.md) establishes the reference ALSA configuration chain, separate assistant playback candidate and kernel-level control boundary. No supported deployment or capture interface established on target; physical mute remains unverified. Prioritize model-specific application lifecycle/interface evidence over further generic DSP tracing.
