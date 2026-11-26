@@ -90,3 +90,5 @@ Official references:
 - https://www.samsung.com/at/support/model/HW-S800D/EN/
 - https://opensource.samsung.com/
 - https://developer.samsung.com/smarttv/develop/getting-started/quick-start-guide.html (TV SDK, not evidence of soundbar support)
+
+Work cycle 7: [headless Tizen SDK validation](findings/2026-11-26-headless-tizen-sdk.md) establishes official generic Tizen 8.0 service API compatibility: independent lifecycle smoke service and capability/inventory probe both passed actual SDK header syntax checks (run 45743111190). Next real build/link and supported emulator lifecycle test; ARM/AArch64 and S800D deployment remain unverified. No device install, recording or settings changes.
