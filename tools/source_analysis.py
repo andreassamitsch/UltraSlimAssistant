@@ -38,6 +38,10 @@ PATTERNS = {
     "service_management": re.compile(r"samsung-service-manager|downloadableApp|appUpgrade|pkgmgr|tizen[-_]service|appcore|aul_launch_app", re.I),
     "audio_capture": re.compile(r"audio_in_(?:create|prepare|read|start)|snd_pcm_(?:capture|readi|open)|SNDRV_PCM_STREAM_CAPTURE|SND_PCM_STREAM_CAPTURE|audio[-_]capture", re.I),
     "microphone_dsp": re.compile(r"microphone|micbias|dmic|pdm_mic|farfield|far.field|echo.cancel|wakeword|wake.word", re.I),
+    "voice_service": re.compile(r"\b(?:alexa|avsdevice|AVSCommon|AudioInputProcessor|SpeechRecognizer|wakeword|wake_word|voiceassistant|voice_assistant|voice-assistant|voiceinteraction)\b", re.I),
+    "audio_frontend": re.compile(r"\b(?:mtkffp|mtkpreaec|ffp_in|plug_ffp_4_2|Capture_Mic_normal|Capture_Mic_ais_only|Capture_Echo_Reference|UL2_CM1_DMIC_8ch|UL3_2ch_GASRC_DLM)\b", re.I),
+    "audio_focus": re.compile(r"\b(?:AudioFocus|FocusManager|ChannelObserver|audio_focus|audio_ducking|ducking|audio_session|sound_policy)\b", re.I),
+    "mic_privacy": re.compile(r"\b(?:mic_mute|microphone_mute|microphoneMute|micmute|privacy_mute|hardware_mute|recorder_privilege)\b", re.I),
     "security_model": re.compile(r"\bsmack\b|tizen\.org/privilege/(?:recorder|microphone)|app[-_]signature|security-manager", re.I),
 }
 # Prefer product-specific evidence over generic third-party tests and translations.
@@ -52,6 +56,11 @@ def score(path, line, category):
         n -= 3
     if category == "hyperuart":
         n += 8
+    if category in ("voice_service", "audio_frontend", "audio_focus", "mic_privacy"):
+        if any(part in p for part in ("mdp_alsa", "swdsp", "mas_thread", "avsdk", "pulseaudio", "tizen-manifest")):
+            n += 12
+        if any(part in p for part in ("drivers/gpu", "/translations/", "/examples/")):
+            n -= 8
     if "define" in line or "config " in line or "compatible" in line:
         n += 2
     return n
@@ -229,7 +238,7 @@ def pcloud_download(work):
         return body
     metadata = api("showpublink").get("metadata", {})
     name = metadata.get("name", "")
-    if metadata.get("isfolder") or not re.fullmatch(r"HW-Q(?:800|990)D\.zip", name, re.I):
+    if metadata.get("isfolder") or not re.fullmatch(r"HW-(?:Q(?:800|990)D|S800D)(?:[_-]EN)?\.zip", name, re.I):
         raise ValueError("shared item is not an expected Samsung source archive")
     size = int(metadata.get("size", 0))
     if not 0 < size <= MAX_DOWNLOAD:
@@ -270,10 +279,16 @@ def self_test():
         with zipfile.ZipFile(archive, "w") as z:
             z.writestr("source.tar.gz", nested.getvalue())
             z.writestr("../outside.c", "audio_in_create();\n")
+            z.writestr("mdp_alsa/swdsp/aasound.conf",
+                       "pcm.ffp_in { type mtkffp }\nmic_mute=1\n")
+            z.writestr("avsdk/voice.cpp",
+                       "AudioInputProcessor; FocusManager;\n")
         s = Scan(work)
         s.archive(archive, "test.zip")
         assert s.matched_files["hyperuart"] == 1
         assert s.matched_files["audio_capture"] == 2
+        for category in ("voice_service", "audio_frontend", "audio_focus", "mic_privacy"):
+            assert s.matched_files[category] == 1, category
         assert len(s.archives) == 2
         assert not (Path(work).parent / "outside.c").exists()
         assert not s.issues
@@ -284,6 +299,8 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--self-test", action="store_true")
     p.add_argument("--work")
+    p.add_argument("--archive", type=Path,
+                   help="Analyze a locally supplied public source ZIP instead of pCloud")
     args = p.parse_args()
     if args.self_test:
         self_test()
@@ -291,11 +308,22 @@ def main():
     if not args.work:
         p.error("--work required")
     try:
-        archive, name = pcloud_download(args.work)
+        if args.archive is not None:
+            archive = args.archive.resolve()
+            name = archive.name
+            if not archive.is_file() or not 0 < archive.stat().st_size <= MAX_DOWNLOAD or not zipfile.is_zipfile(archive):
+                raise ValueError("invalid or oversize local source ZIP")
+            digest = hashlib.sha256()
+            with archive.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            print("Local archive:", safe_text(name), archive.stat().st_size, "bytes, SHA256", digest.hexdigest())
+        else:
+            archive, name = pcloud_download(args.work)
     except ValueError as e:
         # Only locally created errors are safe to log; parsing errors may embed URLs.
         print("Download validation failed:", type(e).__name__)
-        if str(e).startswith(("repository secret", "expected European", "invalid pCloud", "pCloud showpublink error code", "pCloud getpublinkdownload error code", "shared item", "archive size", "unexpected download", "download exceeds", "download length")):
+        if str(e).startswith(("repository secret", "expected European", "invalid pCloud", "pCloud showpublink error code", "pCloud getpublinkdownload error code", "shared item", "archive size", "unexpected download", "download exceeds", "download length", "invalid or oversize local source ZIP")):
             print(safe_text(e))
         raise SystemExit(2)
     except Exception as e:
