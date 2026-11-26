@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/source-license-review.yml'
+      - 'tools/source_license_review.py'
   workflow_dispatch:
 permissions:
   contents: read
