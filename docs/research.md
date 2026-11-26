@@ -10,6 +10,8 @@ Target: HW-S800D/EN; device-reported firmware SAT-MT8532D24WWC-1072.1. The publi
 
 ## 2. Baseline and evidence
 
+- Target OCF /oic/p reports Tizen 8.0, firmware SAT-MT8532D24WWC-1072.1; LAN REST metadata reports developerMode=0 and TCP 26101 was refused in two bounded owner-network checks. These are actual target observations, not proof of TV compatibility. See [platform evidence](findings/2026-11-25-platform-sdk.md) and [service inventory](findings/2026-11-25-service-inventory.md).
+- Official S800D USB archive was already inventoried (1,289,225,604 bytes; SHA256 2fcb3c246031a7f5687fb4a1f4a98f8063a63b2ce74e06a900ac5022a8d0a29d). MediaTek MSD metadata includes cryptographic tokens and high entropy; likely opaque/encrypted, not a confirmed exact installed version. See [inventory](findings/2026-11-25-inventory.md) and [MSD inspection](findings/2026-11-25-msd.md).
 - Q800D and Q990D published source archives have been inventoried and compared. Kernel, AV SDK, MM_DTV and PulseAudio component hashes match; this does not establish equivalence to the S800D. Some nested archives and files remain unexamined.
 - Published Q800D sources show Linux 5.4.249, MT8532 audio drivers, ALSA and PulseAudio 15.0. Selected released audio binaries are 32-bit ARM; the running S800D ABI is not verified.
 - Tizen 6.0 tv-samsung native service packaging is present in the released SDK; this is not evidence of third-party installation permission.
@@ -31,17 +33,17 @@ Soundbar microphones -> supported capture interface / existing speech processing
 
 - [ ] Investigate model-specific documented developer mode, supported native package/service deployment, package manager, TPK signing and authorization, and supported SDB/USB interfaces. Distinguish TV SDK documentation from actual soundbar support.
 - [ ] Determine whether an owner-authorized, vendor-supported way to start a small diagnostic program exists without replacing firmware. Verify a safe stop/uninstall and recovery path before any device-side test. Do not bypass signing, authentication or other access controls.
-- [ ] Locate or request exact HW-S800D/EN source materials for SAT-MT8532D24WWC-1072.1 through Samsung Open Source; record model, firmware, provenance and any source coverage limitations. Do not submit a request on the owner's behalf without approval.
+- [ ] Locate publicly available exact HW-S800D/EN source materials for SAT-MT8532D24WWC-1072.1 or owner-supplied corresponding sources; record model, firmware, provenance and coverage limitations. Manufacturer outreach was explicitly cancelled by the owner; do not contact Samsung. The source portal remains inaccessible from this research environment.
 - [ ] Compare exact target evidence against the Q800D/Q990D references; revise all assumptions about OS, ABI, capture, package format and runtime.
 
 Decision gate: a documented, authorized installation/execution path with rollback and known target prerequisites. If no such path can be established, mark M1 blocked and reassess feasibility rather than treating generic platform features as access.
 
 ### P1 — Targeted audio, voice-service and firmware analysis
 
-- [ ] Inventory the official S800D USB firmware offline: source URL, date, archive size, SHA-256, member list, package formats and public metadata. Distinguish version mismatch and inaccessible proprietary components.
+- [x] Inventory the official S800D USB firmware offline and inspect MediaTek MSD metadata/entropy (completed 2026-11-25). Revisit only with new firmware/version or concrete supported format evidence; do not repeat broad scans of the opaque image.
 - [ ] Map published/documented Alexa and other existing voice-service architecture: lifecycle, wake word, microphone stream handoff, audio focus/ducking, mute handling and any supported extensibility interface. Do not intercept private assistant traffic, reuse credentials or impersonate an existing provider.
 - [ ] Trace FFP and PulseAudio source selection, installed configuration dependencies, PCM aliases, audio permissions, public recorder API, sample format negotiation and potential processing/echo cancellation. Identify which findings are generic and which are target-specific.
-- [ ] Improve reproducibility: one reusable analysis workflow with separate versioned Python analysis scripts, bounded nested-archive inspection, reviewed metadata output and regression tests. First verify workflow-write permissions or use an existing authorized workflow. Record skipped inputs and inspect actual logs before declaring success. Avoid repeating broad scans unless a concrete evidence gap justifies them.
+- [ ] Improve reproducibility using the existing source-analysis.yml and tools/source_analysis.py. On 2026-11-26 added focused voice-service, FFP, audio-focus and microphone-privacy matches, local ZIP input and S800D source-name support, with synthetic fixtures (commit b1b9e7b). Existing push workflow runs self-test; archive acquisition needs a separately authorized manual run. Record skipped inputs and inspect actual logs before declaring success.
 
 ### P2 — Native diagnostics and Assist integration (gated by M1)
 
@@ -73,7 +75,7 @@ Decision gate: a documented, authorized installation/execution path with rollbac
 
 For each investigation: state the question and expected evidence, choose the smallest useful experiment, execute it if authorized and available, inspect the real results/logs, record findings with provenance, update milestone and task status, and identify the next highest-value step. Repeat within the available session; do not claim unperformed work or successful jobs without evidence. Distinguish verified source facts, host tests, target observations and hypotheses. If a blocker requires owner action, describe the exact blocker and what is needed; continue independent offline work where useful. Do not change the soundbar or create a recurring automation as part of this plan.
 
-Immediate next action: focus on P0 (supported native execution / exact S800D evidence), parallel with targeted voice-service and FFP analysis. More general source scans are lower priority. M1 is the key feasibility gate, not a promised result.
+Immediate next action: focus on P0 (supported native execution / exact S800D evidence), parallel with targeted voice-service and FFP analysis. Review the [first work-cycle findings](findings/2026-11-26-deployment-and-voice.md), verify the focused analyzer CI run, and obtain an authorized exact S800D or relevant reference source archive for the focused scan. More general source scans are lower priority. M1 is the key feasibility gate, not a promised result.
 
 ## 7. Storage, privacy and safety
 
