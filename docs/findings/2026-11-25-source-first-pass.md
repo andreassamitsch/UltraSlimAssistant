@@ -8,3 +8,8 @@ Follow-up run 45714814625 (commit e24443d159d3e379d1e24cf6e284a6e2d4b6fb3d) enum
 
 ## Comparative run
 Q990D source share launched as run 45715151465, commit dadeb6ed3496f28516c572c0d6479abdbef308a4, using the same targeted analyzer. Current workflow no longer contains the share URL; historical commits/logs remain public as authorized. Both targeted runs were still executing when checked. Compare exact archive manifest, kernel version/configuration and device-specific source paths rather than treating common package names as proof of hardware equivalence.
+
+## Verified follow-up, 2026-11-26
+Actual job logs reviewed: 45714814625 (139558038552, 139558093681), 45716112652 (139562466757), 45716366936 (139563333189), 45716235152 (139562884818), 45716235216 (139562884844). All six jobs succeeded. Targeted Q800D scan: 116905 text files, eight unsupported archives, 18 large text skips, 26103 test entries skipped. MT8532 PCM3 source lines 10126–10129 route DMIC Capture to I04–I07. ALSA config contains Capture_Mic_normal, Capture_Mic_ais_only, Capture_Voice_Upload and Capture_Echo_Reference. PulseAudio cynara.h declares recorder privilege. Q800D and Q990D component hashes match for kernel, AV SDK, MM_DTV and PulseAudio, not proof of S800D equivalence. ALSA inventory uses synthetic config; native feature query uses host stubs; neither establishes target execution or permissions.
+
+Next gate: inspect documented supported installation and signing mechanisms, distinguish SDK availability from target support, and identify public recorder privilege requirements. Do not bypass signing or access controls. No device changes. Continue static work and host tests until exhausted; target installation and actual microphone access remain unverified.
