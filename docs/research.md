@@ -40,6 +40,8 @@ Decision gate: a documented, authorized installation/execution path with rollbac
 
 ### P1 — Targeted audio, voice-service and firmware analysis
 
+Work cycle 5: [audio service boundaries](findings/2026-11-26-audio-service-boundaries.md) establishes the reference ALSA configuration chain, separate assistant playback candidate and kernel-level control boundary. No supported deployment or capture interface established on target; physical mute remains unverified. Prioritize model-specific application lifecycle/interface evidence over further generic DSP tracing.
+
 - [x] Inventory the official S800D USB firmware offline and inspect MediaTek MSD metadata/entropy (completed 2026-11-25). Revisit only with new firmware/version or concrete supported format evidence; do not repeat broad scans of the opaque image.
 - [ ] Map published/documented Alexa and other existing voice-service architecture: lifecycle, wake word, microphone stream handoff, audio focus/ducking, mute handling and any supported extensibility interface. Do not intercept private assistant traffic, reuse credentials or impersonate an existing provider.
 - [ ] Trace FFP and PulseAudio source selection, installed configuration dependencies (including Tizen device-map.json / stream-map.json and vendor audio policy if present), PCM aliases, audio permissions, public recorder API, sample format negotiation and potential processing/echo cancellation. Identify which findings are generic and which are target-specific.
