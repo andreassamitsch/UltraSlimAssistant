@@ -31,7 +31,8 @@ def walk(file,label,depth=0):
                 if not m.is_dir():
                     yield from member(m.filename,m.file_size,lambda m=m:z.open(m),label,depth)
     else:
-        with tarfile.open(file,"r:*") as t:
+        file.seek(0)
+        with tarfile.open(fileobj=file,mode="r:*") as t:
             for m in t:
                 if m.isfile():
                     yield from member(m.name,m.size,lambda m=m:t.extractfile(m),label,depth)
