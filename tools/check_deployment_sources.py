@@ -36,6 +36,20 @@ def main():
                     if not (basename.endswith((".h",".c",".mk",".config","defconfig")) or basename.startswith(("Makefile","Kconfig"))): continue
                     raw=t.extractfile(m).read()
                     if b"SAMSUNG_" not in raw and not basename.endswith("defconfig"): continue
+                    if name.endswith("/include/linux/usb/usbnet.h"):
+                        # Report only the preprocessor context, not unrelated source.
+                        stack=[]
+                        for n,line in enumerate(raw.decode("utf-8","replace").splitlines(),1):
+                            directive=re.match(r"^\s*#\s*(if|ifdef|ifndef|elif|else|endif|define|undef)\b(.*)",line)
+                            if not directive: continue
+                            op,arg=directive.groups()
+                            arg=arg.strip().split("//",1)[0].split("/*",1)[0].strip()
+                            if op in ("if","ifdef","ifndef"): stack.append(op+" "+arg)
+                            elif op in ("elif","else") and stack: stack[-1]=op+" "+arg+" [alternate branch]"
+                            elif op=="endif" and stack: stack.pop()
+                            elif op in ("define","undef") and FLAG.search(arg):
+                                print("MACRO_CONTEXT",n,op,FLAG.search(arg).group(), "conditions="+repr(stack),flush=True)
+                        print("MACRO_CONTEXT_COMPLETE",flush=True)
                     for i,line in enumerate(raw.decode("utf-8","replace").splitlines(),1):
                         flags=FLAG.findall(line)
                         if not flags: continue
