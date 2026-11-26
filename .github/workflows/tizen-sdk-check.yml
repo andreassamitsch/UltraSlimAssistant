@@ -1,0 +1,26 @@
+name: Tizen 8 SDK header validation
+on:
+  push:
+    paths:
+      - '.github/workflows/tizen-sdk-check.yml'
+      - 'tools/check_tizen_sdk.py'
+      - 'prototype/tizen/service_smoke.c'
+      - 'prototype/tizen/capability_probe.c'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sdk-headers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Fetch official generic Tizen 8.0 x86-64 emulator rootstrap
+        run: |
+          set -euo pipefail
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-time 180 --max-filesize 160000000 -o "$RUNNER_TEMP/rootstrap.zip" 'https://download.tizen.org/archive/sdk/tizenstudio/official/binary/tizen-8.0-rs-emulator64.core_0.0.145_ubuntu-64.zip'
+          test "$(stat -c %s "$RUNNER_TEMP/rootstrap.zip")" = 154386242
+      - name: Check actual SDK header compatibility (no target execution)
+        run: python3 tools/check_tizen_sdk.py "$RUNNER_TEMP/rootstrap.zip" "$GITHUB_WORKSPACE"
