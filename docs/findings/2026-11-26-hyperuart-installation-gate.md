@@ -1,0 +1,17 @@
+# Work cycle 9 — adapter purchase gate: installation chain (2026-11-26)
+
+Owner asked to establish the software installation path before buying USB adapters. Do not recommend hardware yet.
+
+## Evidence separated by layer
+
+1. **USB transport:** the published MT8532 release defconfig was previously read in actual job 139563333189. It explicitly builds USB networking, ASIX AX8817X, AX88179/178A and CDC Ethernet as modules. RNDIS host is not set. These are reference build options, not verified target configuration. Samsung-specific conditional HyperUART code and SDB transfer-related code exist in the shared kernel. Their presence does not establish that the conditional flags were enabled in the target build.
+2. **SDB daemon:** the complete outer Q800D archive inventory in actual job 139560488119 contains no separately named SDB daemon, package manager or Service Manager source package. The private snapshot filename search found no such component either. The kernel driver handles network transport; the actual SDB server and its userspace startup policy are not established by this code.
+3. **Package acceptance:** the shared AV SDK spec demonstrates a manufacturer-signed native TPK preload mechanism, not owner-accessible signing or installation. Official [Tizen SDB documentation](https://docs.stg.tizen.org/application/tizen-studio/common-tools/smart-development-bridge/) describes native package management on supported development targets. Samsung's [TV application testing FAQ](https://developer.samsung.com/smarttv/develop/faq/application-testing.html), Q25, excludes native C TPKs in the public TV workflow. This limitation cannot simply be transferred to soundbars, but shows that SDB connectivity is not equivalent to unrestricted native package acceptance.
+4. **Independent older model:** [Matthew Garrett, Q800A, 2026-10-30](https://codon.org.uk/~mjg59/blog/p/getting-google-cast-on-my-soundbar/) reports SDB connectivity on the older model, but also executable signature enforcement. He did not demonstrate installation of his own native assistant or a supported newer-model connection. No authorization bypass, vendor signing material, or firmware modification is part of this project.
+5. **Application runtime:** generic Tizen 8 SDK header tests passed in run 45743111190. Actual S800D ABI, install policy, recorder authorization and physical mute behavior remain unverified.
+
+## Targeted follow-up
+Added tools/check_deployment_sources.py and deployment-source-check.yml to examine the original Q800D kernel build flags and component filenames missed by the private snapshot. Run 45744157243 launched; read actual logs before concluding. Inspection is metadata-only, no vendor executable execution or credential examination.
+
+## Decision
+Hardware purchase remains on hold. M1 requires a supported S800D-compatible development/installation route, valid developer authorization, independent signed package acceptance, then a harmless lifecycle smoke test. Until then a complete assistant installation cannot be inferred from these archives. The user-space implementation or a supported documentation/test route is missing. No device changes or recording.
