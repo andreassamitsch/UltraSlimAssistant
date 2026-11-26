@@ -29,12 +29,12 @@ Soundbar microphones -> supported capture interface / existing speech processing
 
 ## 4. Prioritized work packages
 
-### P0 — Native execution and exact target evidence (parallel)
+### P0 — Native execution and target verification
 
 - [ ] Investigate model-specific documented developer mode, supported native package/service deployment, package manager, TPK signing and authorization, and supported SDB/USB interfaces. Distinguish TV SDK documentation from actual soundbar support.
 - [ ] Determine whether an owner-authorized, vendor-supported way to start a small diagnostic program exists without replacing firmware. Verify a safe stop/uninstall and recovery path before any device-side test. Do not bypass signing, authentication or other access controls.
-- [ ] Locate publicly available exact HW-S800D/EN source materials for SAT-MT8532D24WWC-1072.1 or owner-supplied corresponding sources; record model, firmware, provenance and coverage limitations. Manufacturer outreach was explicitly cancelled by the owner; do not contact Samsung. The source portal remains inaccessible from this research environment.
-- [ ] Compare exact target evidence against the Q800D/Q990D references; revise all assumptions about OS, ABI, capture, package format and runtime.
+- [x] Close exact S800D source acquisition as a prerequisite. On 2026-11-26 the owner supplied the complete five-result Samsung TV & Video > AV listing: HW-Q990D.zip, HW-Q800D.zip (Q700D/Q800D/Q930D and AVR equivalents), 17_AV_HawkA_Tizn3.0.zip, 15_WAM7500.zip and BD_E5300.zip. No S800D entry. Owner confirms no further Samsung material is expected. This is owner-reported catalog evidence, not an independently verified exhaustive global search. Do not spend further cycles on the portal or contact Samsung.
+- [ ] Use Q800D as primary MT8532 audio reference and Q990D for common platform comparison; verify findings against existing target observations and authorized target diagnostics if new evidence warrants them. Older HawkA Tizen 3.0 is a historical reference only if a concrete question requires it; WAM and Blu-ray packages are low priority. No assumption of exact source or hardware equivalence.
 
 Decision gate: a documented, authorized installation/execution path with rollback and known target prerequisites. If no such path can be established, mark M1 blocked and reassess feasibility rather than treating generic platform features as access.
 
@@ -63,7 +63,7 @@ Decision gate: a documented, authorized installation/execution path with rollbac
 
 | Milestone | Status | Acceptance criterion |
 |---|---|---|
-| M0 — Reference platform analysis | Substantially complete; exact target pending | Reproducible reference inventory, audio/SDK findings and clearly documented gaps |
+| M0 — Reference platform analysis | Substantially complete; exact target source unavailable | Reproducible reference inventory, audio/SDK findings and clearly documented gaps |
 | M1 — Hello World on S800D | Next / blocked pending authorized execution path | A minimal owned program starts and stops through a supported method on the actual device; original behavior is unaffected |
 | M2 — Audio source enumeration | Pending M1 | Supported microphone/source metadata and privileges verified on target; no unintended mixer changes |
 | M3 — Microphone stream | Pending M2 | Explicitly approved capture reaches HA with verified format and mute behavior |
@@ -75,7 +75,7 @@ Decision gate: a documented, authorized installation/execution path with rollbac
 
 For each investigation: state the question and expected evidence, choose the smallest useful experiment, execute it if authorized and available, inspect the real results/logs, record findings with provenance, update milestone and task status, and identify the next highest-value step. Repeat within the available session; do not claim unperformed work or successful jobs without evidence. Distinguish verified source facts, host tests, target observations and hypotheses. If a blocker requires owner action, describe the exact blocker and what is needed; continue independent offline work where useful. Do not change the soundbar or create a recurring automation as part of this plan.
 
-Immediate next action: focus on P0 (supported native execution / exact S800D evidence), parallel with targeted voice-service and FFP analysis. Review the [first work-cycle findings](findings/2026-11-26-deployment-and-voice.md) and [second work-cycle findings](findings/2026-11-26-focused-source-scan.md), obtain an authorized exact S800D or relevant reference source archive for the focused scan. More general source scans are lower priority. M1 is the key feasibility gate, not a promised result.
+Immediate next action: focus on P0 (supported native execution), parallel with targeted voice-service and FFP analysis using the available Q800D and Q990D reference archives. Review the [first work-cycle findings](findings/2026-11-26-deployment-and-voice.md) and [second work-cycle findings](findings/2026-11-26-focused-source-scan.md). Reuse an authorized reference archive for the focused scan; do not wait for exact S800D sources. More general source scans are lower priority. M1 is the key feasibility gate, not a promised result.
 
 ## 7. Storage, privacy and safety
 
